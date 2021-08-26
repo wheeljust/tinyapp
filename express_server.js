@@ -14,8 +14,9 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-// Express server - http requests/responses
 
+
+// Express server - http requests/responses
 app.get("/", (req, res) => {
   res.send("Home Page Not Defined Yet");
 });
@@ -35,6 +36,11 @@ app.get("/urls/:shortURL", (req, res) => {
     longURL: urlDatabase[req.params.shortURL]
   };
   res.render("urls_show", templateVars);
+});
+
+app.post("/urls", (req, res) => {
+  console.log(req.body);
+  res.send('working ok');
 });
 
 
