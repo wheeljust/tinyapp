@@ -14,7 +14,10 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-
+// Temporary location for shortURL function
+function generateRandomString() {
+  return Math.random().toString(16).substr(2, 6);
+};
 
 // Express server - http requests/responses
 app.get("/", (req, res) => {
