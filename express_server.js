@@ -3,36 +3,43 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
-app.set("view engine", "ejs");
-
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 
-// Database placeholder for URLs
+app.set("view engine", "ejs");
+
+// Database holder for URLs
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
-// Temporary location for shortURL function
+// Temporary location for function that generates a shortURL
 function generateRandomString() {
   return Math.random().toString(16).substr(2, 6);
 };
 
-// Express server - http requests/responses
+
+/** 
+ * Express server functions below for http requests and responses 
+ * */
+
 app.get("/", (req, res) => {
   res.send("Home Page Not Defined Yet");
 });
 
+// Route handler for HTML form to where user can post a new URL to shorten
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+// Route handler to get to the URL database table
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
+// Route handler to get only the info for one of the shortURLs
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
@@ -41,6 +48,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+// Route handler for clicking on the shortURL anchor, redirects to the longURL webpage
 app.get("/u/:shortURL", (req, res) => {
   const longURL = (urlDatabase[req.params.shortURL]);
   // To prevent attempting multiple redirects, set staus code to 404 Not found when no shortURL in urlDatabase
@@ -51,6 +59,7 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+// When a new shortURL is generated, redirect to urls_show view with the new shortURL
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
