@@ -24,10 +24,11 @@ function generateRandomString() {
  * Express server functions below for http requests and responses 
  * */
 
+
 /** GET ROUTES */
 
 app.get("/", (req, res) => {
-  res.send("Home Page Not Defined Yet");
+  res.send("Home Page");
 });
 
 // Route handler for HTML form to where user can post a new URL to shorten
@@ -61,6 +62,7 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+
 /** POST ROUTES */
 
 // When a new shortURL is generated, redirect to urls_show view with the new shortURL
@@ -70,13 +72,13 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-// Delete a URL from the database via Delete button
+// Deletes a URL from the database via Delete button
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect(`/urls`);
 });
 
-// Update a long URL in the database
+// Updates a long URL in the database
 app.post("/urls/:id", (req, res) => {
   urlDatabase[req.params.id] = req.body.longURL;
   res.redirect(`/urls`);
