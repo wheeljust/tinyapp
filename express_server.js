@@ -28,6 +28,11 @@ const generateRandomString = () => {
 
 /** GET (READ) ROUTES */
 
+// Route handler for registration form
+app.get("/register", (req, res) => {
+  res.render("register");
+});
+
 // Route handler for HTML form to where user can post a new URL to shorten
 app.get("/urls/new", (req, res) => {
   const templateVars = {
