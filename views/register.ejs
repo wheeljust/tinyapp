@@ -14,8 +14,12 @@
 
     <%- include('partials/_welcome_header') %>
 
+    <div class="card-header"> 
+      <h5 class="text-dark"><em>TinyApp</em></h5>
+      <h6 class="text-muted"><em>A minature URL shortening service for people with big ideas!</em></h6>
+    </div>
     <div class="card-body" style="width: 50%">
-      <form>
+      <form method="POST" action="/register">
         <div class="form-group">
           <label for="email">Email address</label>
           <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
