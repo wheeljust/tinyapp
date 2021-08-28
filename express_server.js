@@ -19,16 +19,14 @@ const urlDatabase = {
 
 // Function to generates a random set of 6 characters for the shortURL
 const generateRandomString = () => {
-  return Math.random().toString(16).substr(2, 6);
+  return Math.random().toString(36).substr(2, 6);
 };
-
 
 /**
  * Express route handlers below
  * */
 
-
-/** GET ROUTES */
+/** GET (READ) ROUTES */
 
 // Route handler for HTML form to where user can post a new URL to shorten
 app.get("/urls/new", (req, res) => {
@@ -59,7 +57,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Route handler for clicking on the shortURL anchor, redirects to the longURL webpage
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = (urlDatabase[req.params.shortURL]);
+  const longURL = urlDatabase[req.params.shortURL];
   // To prevent attempting multiple redirects, set staus code to 404 Not found when the shortURL doesn't exist in urlDatabase
   if (!longURL) {
     res.statusCode = 404;
@@ -78,15 +76,16 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-// Deletes a URL from the database via Delete button
+// Delete feature: Deletes a URL from the database via Delete button
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect(`/urls`);
 });
 
-// Updates a long URL in the database
+// Edit feature: Updates a long URL in the database
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+  const shortURL = req.params.id;
+  urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls`);
 });
 
@@ -103,8 +102,8 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-// Set up to listen on default port
 
+// Set up to listen on default port
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
