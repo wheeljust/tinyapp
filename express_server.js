@@ -6,6 +6,9 @@ const PORT = 8080; // default port 8080
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 app.set("view engine", "ejs");
 
 // Database holder for URLs
@@ -84,10 +87,10 @@ app.post("/urls/:id", (req, res) => {
   res.redirect(`/urls`);
 });
 
-// route for login feature
+// Route for login feature
 app.post("/login", (req, res) => {
   const username = req.body.username;
-  res.cookie(username, 'username');
+  res.cookie("username", username);
   res.redirect("/urls");
 });
 
