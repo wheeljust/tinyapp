@@ -11,10 +11,14 @@ app.use(cookieParser());
 
 app.set("view engine", "ejs");
 
-// Database holder for URLs
+// Database variables
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+
+const users = {
+
 };
 
 // Function to generates a random set of 6 characters for the shortURL
@@ -23,15 +27,25 @@ const generateRandomString = () => {
 };
 
 /**
- * Express route handlers below
+ * REGISTER Handlers
  * */
 
-/** GET (READ) ROUTES */
-
-// Route handler for registration form
 app.get("/register", (req, res) => {
   res.render("register");
 });
+
+app.post("/register", (req, res) => {
+  const userID = generateRandomString();
+  users[userID] = {
+    id: userID,
+    email: req.body.email,
+    password: req.body.password
+  }
+  res.cookie("user_id", userID);
+  res.redirect("/urls");
+});
+
+/** GET (READ) ROUTES */
 
 // Route handler for HTML form to where user can post a new URL to shorten
 app.get("/urls/new", (req, res) => {
