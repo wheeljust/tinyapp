@@ -8,11 +8,15 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <form class="form-inline" action="/login" method="POST" style="position: absolute;right: 10px;">
-          <input class="form-control" type="text" name="username" placeholder="Username" style="width: 150px; margin-right: 10px;">
-          <button type="login" class="btn btn-outline-dark">Login</button>
+      </div>
+      <div class="d-inline-flex" style="position: absolute; right: 10px">
+        <h6 style="margin-top: auto">Logged In As: <%= username %></h6>
+        <form class="form-inline" action="/login" method="POST">
+          <input class="form-control" type="text" name="username" placeholder="Username" style="width: 200px; margin-right: 10px; margin-left: 10px;">
+          <button type="login" class="btn btn-secondary">Login</button>
         </form>
       </div>
+
     </div>
   </nav>
 </header>
