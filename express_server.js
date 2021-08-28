@@ -17,26 +17,22 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-// Temporary location for function that generates a shortURL
-function generateRandomString() {
+// Function to generates a random set of 6 characters for the shortURL
+const generateRandomString = () => {
   return Math.random().toString(16).substr(2, 6);
 };
 
 
-/** 
- * Express server functions below for http requests and responses 
+/**
+ * Express route handlers below
  * */
 
 
 /** GET ROUTES */
 
-app.get("/", (req, res) => {
-  res.send("Home Page");
-});
-
 // Route handler for HTML form to where user can post a new URL to shorten
 app.get("/urls/new", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     username: req.cookies["username"],
   };
   res.render("urls_new", templateVars);
@@ -44,7 +40,7 @@ app.get("/urls/new", (req, res) => {
 
 // Route handler to get to the URL database table
 app.get("/urls", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     username: req.cookies["username"],
     urls: urlDatabase
   };
@@ -64,7 +60,7 @@ app.get("/urls/:shortURL", (req, res) => {
 // Route handler for clicking on the shortURL anchor, redirects to the longURL webpage
 app.get("/u/:shortURL", (req, res) => {
   const longURL = (urlDatabase[req.params.shortURL]);
-  // To prevent attempting multiple redirects, set staus code to 404 Not found when no shortURL in urlDatabase
+  // To prevent attempting multiple redirects, set staus code to 404 Not found when the shortURL doesn't exist in urlDatabase
   if (!longURL) {
     res.statusCode = 404;
     res.end();
@@ -106,6 +102,8 @@ app.post("/logout", (req, res) => {
   res.clearCookie("username");
   res.redirect("/urls");
 });
+
+// Set up to listen on default port
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
