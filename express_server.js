@@ -26,14 +26,13 @@ const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
 };
 
-/**
- * REGISTER Handlers
- * */
+/** RREGISTER, SIGN IN & LOGOUT Handlers */
 
 app.get("/register", (req, res) => {
   res.render("register");
 });
 
+// POST for a new user sign up
 app.post("/register", (req, res) => {
   const userID = generateRandomString();
   users[userID] = {
@@ -45,15 +44,14 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-/** GET (READ) ROUTES */
-
-// Route handler for HTML form to where user can post a new URL to shorten
-app.get("/urls/new", (req, res) => {
-  const userID = req.cookies["user_id"];
-  const user = users[userID];
-  const templateVars = { user };
-  res.render("urls_new", templateVars);
+// POST to logout
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect("/urls");
 });
+
+
+/** URLs INDEX Page */
 
 // Route handler to get to the URL database table
 app.get("/urls", (req, res) => {
@@ -66,7 +64,28 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-// Route handler to get only the info for one of the shortURLs
+// POST new shortURL to database, redirect to urls_show view with the new shortURL
+app.post("/urls", (req, res) => {
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);
+});
+
+
+/** URLs NEW */
+
+// READ page where user can create a new shortURL
+app.get("/urls/new", (req, res) => {
+  const userID = req.cookies["user_id"];
+  const user = users[userID];
+  const templateVars = { user };
+  res.render("urls_new", templateVars);
+});
+
+
+/** URLs DETAILS */
+
+// READ info for one of the shortURLs
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.cookies["user_id"];
   const user = users[userID];
@@ -78,7 +97,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-// Route handler for clicking on the shortURL anchor, redirects to the longURL webpage
+// READ: Redirects using the shortURL to the longURL webpage
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   // To prevent attempting multiple redirects, set staus code to 404 Not found when the shortURL doesn't exist in urlDatabase
@@ -89,44 +108,29 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
-
-/** POST ROUTES */
-
-// When a new shortURL is generated, redirect to urls_show view with the new shortURL
-app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect(`/urls/${shortURL}`);
-});
-
-// Delete feature: Deletes a URL from the database via Delete button
-app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect(`/urls`);
-});
-
-// Edit feature: Updates a long URL in the database
+// UPDATE feature: POST a new long URL to the database
 app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls`);
 });
 
-// Route for login feature
-app.post("/login", (req, res) => {
-  const username = req.body.username;
-  res.cookie("username", username);
-  res.redirect("/urls");
-});
-
-// Route for logout feature
-app.post("/logout", (req, res) => {
-  res.clearCookie("username");
-  res.redirect("/urls");
+// DELETE feature: Deletes a URL from the database via Delete button
+app.post("/urls/:shortURL/delete", (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect(`/urls`);
 });
 
 
-// Set up to listen on default port
+/** Server to listen on default port */
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
+
+// // Route for login feature -- DELETE??
+// app.post("/login", (req, res) => {
+//   const username = req.body.username;
+//   res.cookie("username", username);
+//   res.redirect("/urls");
+// });
