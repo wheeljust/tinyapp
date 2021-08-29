@@ -9,6 +9,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
+app.use( express.static("public") );
+
 app.set("view engine", "ejs");
 
 // Database variables
