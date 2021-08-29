@@ -9,7 +9,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
-app.use( express.static("public") );
+app.use(express.static("public"));
 
 app.set("view engine", "ejs");
 
@@ -33,7 +33,7 @@ const generateRandomString = () => {
 
 /**
  * findUser function
- * @param {a users email address from the entry form} subEmail 
+ * @param {a users email address from the entry form} subEmail
  * @returns the users credentials as an object if their email is found in the database
  */
 const findUser = (subEmail) => {
