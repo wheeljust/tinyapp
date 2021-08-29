@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+    <title>TinyApp - Login</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <div class="p-3 text-center bg-dark text-white">
+            <h2>Let's get started!</h2>
+          </div>
+          <div class="d-flex justify-content-center">
+            <img class="img-fluid" style="max-width: 40%" src="tinyApp Logo.gif">
+          </div>
+          <div class="text-left">
+            <h5><em>Welcome Back! Please Login Below</em></h5>
+          </div>
+          <div class="card-body">
+            <form method="POST" action="/login">
+              <div class="form-group">
+                <label for="email">Email address</label>
+                <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+              </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" name="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+              </div>
+              <button type="submit" class="btn btn-dark">Login</button>
+            </form>
+          </div>
+          <div class="p-2 text-right">
+            <h5>Not a member?</h5>
+            <p><em>Click here to <a class="text-success"href="/register">sign up</a></em></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+</html>
