@@ -62,7 +62,7 @@ app.post("/register", (req, res) => {
   // Check if no entry in the fields provided
   if (!email || !password) {
     res.statusCode = 400;
-    res.send('Error - Status Code 400 - Please enter a valid username and password');
+    res.send('Error - Status Code 400 - Please enter a valid email and password');
     return;
   }
   
@@ -96,7 +96,7 @@ app.post("/login", (req, res) => {
   // Check if no entry in the fields provided
   if (!email || !password) {
     res.statusCode = 400;
-    res.send('Error - Status Code 400 - Please enter a valid username and password');
+    res.send('Error - Status Code 400 - Please enter a valid email and password');
     return;
   }
   
