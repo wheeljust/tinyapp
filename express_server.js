@@ -23,19 +23,29 @@ const users = {
 
 };
 
-// Function to generates a random set of 6 characters for the shortURL
+/**
+ * generateRandomString
+ * @returns random string 6 characters long
+ */
 const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
 };
 
-const notExistingUser = (newUser) => {
-  if (users.length === 0) return ture;
+/**
+ * findUser function
+ * @param {a users email address from the entry form} subEmail 
+ * @returns the users credentials as an object if their email is found in the database
+ */
+const findUser = (subEmail) => {
+  if (users.length === 0) return undefined;
 
   for (const user in users) {
-    if (newUser.email === users[user].email) return false;
+    if (subEmail === users[user].email) {
+      return users[user];
+    }
   }
-
-  return true;
+  // No match in the database, return undefined credentials meaning no existing user
+  return undefined;
 };
 
 /** REGISTER & LOGIN/OUT Handlers */
@@ -49,39 +59,69 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   
+  // Check if no entry in the fields provided
   if (!email || !password) {
     res.statusCode = 400;
     res.send('Error - Status Code 400 - Please enter a valid username and password');
     return;
   }
   
-  const userID = generateRandomString();
-  const newUser = {
-    id: userID,
-    email,
-    password
-  }
-
-  if (notExistingUser(newUser)) {
-    users[userID] = newUser
-    res.cookie("user_id", userID);
-    res.redirect("/urls");
+  // Check for the user in the database
+  if (findUser(email)) {
+    res.statusCode = 400;
+    res.send('Error - Status Code 400 - Existing User');
     return;
   }
 
-  console.log('still going here')
-  res.statusCode = 400;
-  res.send('Error - Status Code 400 - Existing User');
+  const userID = generateRandomString();
+  users[userID] = {
+    id: userID,
+    email,
+    password
+  };
+  res.cookie("user_id", userID);
+  res.redirect("/urls");
 });
 
 app.get("/login", (req, res) => {
   res.render("login");
 });
 
+// POST for login feature
+app.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const credentials = findUser(email);
+
+  // Check if no entry in the fields provided
+  if (!email || !password) {
+    res.statusCode = 400;
+    res.send('Error - Status Code 400 - Please enter a valid username and password');
+    return;
+  }
+  
+  // No credentials found - would be undefined
+  if (!credentials) {
+    res.statusCode = 403;
+    res.send('Error - Status Code 403 - User not found, please create a new account');
+    return;
+  }
+
+  // Credentials found but passwords don't match
+  if (credentials.password !== password) {
+    res.statusCode = 403;
+    res.send('Error - Status Code 403 - Invalid Password, please try again');
+    return;
+  }
+
+  res.cookie("user_id", credentials.id);
+  res.redirect("/urls");
+});
+
 // POST to logout
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
-  res.redirect("/urls");
+  res.clearCookie("user_id");
+  res.redirect("/login");
 });
 
 
@@ -160,11 +200,3 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-
-// // Route for login feature -- DELETE??
-// app.post("/login", (req, res) => {
-//   const username = req.body.username;
-//   res.cookie("username", username);
-//   res.redirect("/urls");
-// });
