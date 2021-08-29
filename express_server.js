@@ -49,16 +49,18 @@ app.post("/register", (req, res) => {
 
 // Route handler for HTML form to where user can post a new URL to shorten
 app.get("/urls/new", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"],
-  };
+  const userID = req.cookies["user_id"];
+  const user = users[userID];
+  const templateVars = { user };
   res.render("urls_new", templateVars);
 });
 
 // Route handler to get to the URL database table
 app.get("/urls", (req, res) => {
+  const userID = req.cookies["user_id"];
+  const user = users[userID];
   const templateVars = {
-    username: req.cookies["username"],
+    user,
     urls: urlDatabase
   };
   res.render("urls_index", templateVars);
@@ -66,8 +68,10 @@ app.get("/urls", (req, res) => {
 
 // Route handler to get only the info for one of the shortURLs
 app.get("/urls/:shortURL", (req, res) => {
+  const userID = req.cookies["user_id"];
+  const user = users[userID];
   const templateVars = {
-    username: req.cookies["username"],
+    user,
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };
