@@ -26,7 +26,17 @@ const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
 };
 
-/** RREGISTER, SIGN IN & LOGOUT Handlers */
+const notExistingUser = (newUser) => {
+  if (users.length === 0) return ture;
+
+  for (const user in users) {
+    if (newUser.email === users[user].email) return false;
+  }
+
+  return true;
+};
+
+/** REGISTER & LOGIN/OUT Handlers */
 
 app.get("/register", (req, res) => {
   res.render("register");
@@ -34,14 +44,32 @@ app.get("/register", (req, res) => {
 
 // POST for a new user sign up
 app.post("/register", (req, res) => {
-  const userID = generateRandomString();
-  users[userID] = {
-    id: userID,
-    email: req.body.email,
-    password: req.body.password
+  const email = req.body.email;
+  const password = req.body.password;
+  
+  if (!email || !password) {
+    res.statusCode = 400;
+    res.send('Error - Status Code 400 - Please enter a valid username and password');
+    return;
   }
-  res.cookie("user_id", userID);
-  res.redirect("/urls");
+  
+  const userID = generateRandomString();
+  const newUser = {
+    id: userID,
+    email,
+    password
+  }
+
+  if (notExistingUser(newUser)) {
+    users[userID] = newUser
+    res.cookie("user_id", userID);
+    res.redirect("/urls");
+    return;
+  }
+
+  console.log('still going here')
+  res.statusCode = 400;
+  res.send('Error - Status Code 400 - Existing User');
 });
 
 // POST to logout
@@ -53,7 +81,7 @@ app.post("/logout", (req, res) => {
 
 /** URLs INDEX Page */
 
-// Route handler to get to the URL database table
+// READ: go to page with URL database table
 app.get("/urls", (req, res) => {
   const userID = req.cookies["user_id"];
   const user = users[userID];
@@ -64,7 +92,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-// POST new shortURL to database, redirect to urls_show view with the new shortURL
+// POST new shortURL to urlDatabase, redirect to urls_show view with the new shortURL
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
