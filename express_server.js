@@ -74,6 +74,10 @@ app.post("/register", (req, res) => {
   res.send('Error - Status Code 400 - Existing User');
 });
 
+app.get("/login", (req, res) => {
+  res.render("login");
+});
+
 // POST to logout
 app.post("/logout", (req, res) => {
   res.clearCookie("username");
