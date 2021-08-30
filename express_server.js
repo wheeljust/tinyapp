@@ -50,26 +50,35 @@ const findUser = (subEmail) => {
 
 /** REGISTER & LOGIN/OUT Handlers */
 
+// READ register page
 app.get("/register", (req, res) => {
-  res.render("register");
+  const error = {
+    msg: null,
+  };
+  res.render("register", { error });
 });
 
 // POST for a new user sign up
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+  const error = {
+    msg: null,
+  };
   
   // Check if no entry in the fields provided
   if (!email || !password) {
     res.statusCode = 400;
-    res.send('Error - Status Code 400 - Please enter a valid email and password');
+    error.msg = 'Please enter a valid email and password';
+    res.render("register", { error });
     return;
   }
   
   // Check for the user in the database
   if (findUser(email)) {
     res.statusCode = 400;
-    res.send('Error - Status Code 400 - Existing User');
+    error.msg = 'This account already exists, please login using your existing email and password';
+    res.render("login", { error });
     return;
   }
 
@@ -83,8 +92,12 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
+// Read login page
 app.get("/login", (req, res) => {
-  res.render("login");
+  const error = {
+    msg: null,
+  };
+  res.render("login", { error });
 });
 
 // POST for login feature
@@ -92,25 +105,31 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   const credentials = findUser(email);
+  const error = {
+    msg: null,
+  };
 
   // Check if no entry in the fields provided
   if (!email || !password) {
     res.statusCode = 400;
-    res.send('Error - Status Code 400 - Please enter a valid email and password');
+    error.msg = 'Please enter a valid email and password';
+    res.render("login", { error });
     return;
   }
   
   // No credentials found - would be undefined
   if (!credentials) {
     res.statusCode = 403;
-    res.send('Error - Status Code 403 - User not found, please create a new account');
+    error.msg = 'Email not found, please create a new account';
+    res.render("register", { error });
     return;
   }
 
   // Credentials found but passwords don't match
   if (credentials.password !== password) {
+    error.msg = 'The password you entered is invalid, please try again.';
     res.statusCode = 403;
-    res.send('Error - Status Code 403 - Invalid Password, please try again');
+    res.render("login", { error });
     return;
   }
 
