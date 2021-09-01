@@ -113,7 +113,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const user = getUserByEmail(email);
+  let user = getUserByEmail(email);
   const error = {
     msg: null,
   };
@@ -135,6 +135,7 @@ app.post("/login", (req, res) => {
   // user found but passwords don't match
   if (user.password !== password) {
     error.msg = 'The password you entered is invalid, please try again.';
+    user = null;
     res.statusCode = 403;
     return res.render("login", { user, error });
   }
