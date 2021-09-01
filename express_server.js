@@ -58,7 +58,7 @@ const urlsForUser = (id) => {
   const accessList = {};
   for (const url in urlDatabase) {
     if (urlDatabase[url].id === id) {
-      accessList.url = urlDatabase[url];
+      accessList[url] = urlDatabase[url];
     }
   }
   return accessList;
@@ -179,7 +179,7 @@ app.get("/urls", (req, res) => {
   };
 
   if (!id) {
-    error.msg = "Please log in to view this page"
+    error.msg = "Please register or login to view this page"
     return res.render("urls_index", templateVars);
   }
 

@@ -13,33 +13,39 @@
   <%- include('partials/_header'); %>
   
   <main style="margin: 1em;">
-    <h3><img class="img-fluid" style="max-width: 2.5%" src="small_logo.png">My URLs</h3>
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Short URL</th>
-          <th scope="col">Long URL</th>
-          <th scope="col">Edit</th>
-          <th scope="col">Delete</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% for(const url in urls) { %>
-            <tr>
-                <td><%= url %></td>
-                <td><%= urls[url].longURL %></td>
-                <td> 
-                  <a href= "/urls/<%= url %>"><button type="submit" class="btn btn-outline-success">Edit</button></a>
-                </td>
-                <td> 
-                  <form method="POST" action="/urls/<%= url %>/delete">
-                    <button type="submit" class="btn btn-outline-danger">Delete</button>
-                  </form>
-                </td>
-            </tr>
-        <% } %>
-      </tbody>
-    </table>
+    <% if (error.msg) { %>
+      <h3><%= error.msg %></h3>
+      <p><em>Click here to <a class="text-success"href="/login">login</a></em></p>
+      <p><em>Click here to <a class="text-success"href="/register">register</a></em></p>
+    <% } else { %>
+      <h3><img class="img-fluid" style="max-width: 2%" src="small_logo.png">My URLs</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Short URL</th>
+            <th scope="col">Long URL</th>
+            <th scope="col">Edit</th>
+            <th scope="col">Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for(const url in urls) { %>
+              <tr>
+                  <td><%= url %></td>
+                  <td><%= urls[url].longURL %></td>
+                  <td> 
+                    <a href= "/urls/<%= url %>"><button type="submit" class="btn btn-outline-success">Edit</button></a>
+                  </td>
+                  <td> 
+                    <form method="POST" action="/urls/<%= url %>/delete">
+                      <button type="submit" class="btn btn-outline-danger">Delete</button>
+                    </form>
+                  </td>
+              </tr>
+          <% } %>
+        </tbody>
+      </table>
+      <% } %>
   </main>
 
   <!-- Bootstrap JS -->
