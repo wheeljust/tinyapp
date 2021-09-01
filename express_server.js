@@ -221,13 +221,21 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const id = req.cookies["user_id"];
   const user = users[id];
+  const error = { msg: null };
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
   const templateVars = {
     user,
     shortURL,
-    longURL
+    longURL,
+    error
   };
+
+  if (urlDatabase[shortURL].id !== id) {
+    error.msg = "Your user permissions do not allow you to access this page"
+    return res.render("urls_show", templateVars);
+  }
+
   res.render("urls_show", templateVars);
 });
 
