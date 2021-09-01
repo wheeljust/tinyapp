@@ -17,8 +17,8 @@ app.set("view engine", "ejs");
 
 // Database variables
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", id: "aJ481W" },
+  "9sm5xK": {longURL: "http://www.google.com", id: "aJ481W" }
 };
 
 const users = {
@@ -52,7 +52,7 @@ const getUserByEmail = (subEmail) => {
 
 /** REGISTER & LOGIN/OUT Handlers */
 
-// READ register page
+// READ: register page
 app.get("/register", (req, res) => {
   const id = req.cookies["user_id"];
   const user = users[id];
@@ -64,7 +64,7 @@ app.get("/register", (req, res) => {
   res.render("register", templateVars);
 });
 
-// POST for a new user sign up
+// POST: for a new user sign up
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -97,7 +97,7 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-// Read login page
+// READ: login page
 app.get("/login", (req, res) => {
   const id = req.cookies["user_id"];
   const user = users[id];
@@ -109,7 +109,7 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 });
 
-// POST for login feature
+// POST: for login feature
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -143,7 +143,7 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
-// POST to logout
+// POST: to logout
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/login");
@@ -163,19 +163,25 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-// POST new shortURL to urlDatabase, redirect to urls_show view with the new shortURL
+// POST: new shortURL to urlDatabase, redirect to urls_show view with the new shortURL
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL].longURL = req.body.longURL;
+  urlDatabase[shortURL].id = req.cookies["user_id"]
   res.redirect(`/urls/${shortURL}`);
 });
 
 
 /** URLs NEW */
 
-// READ page where user can create a new shortURL
+// READ: page where user can create a new shortURL
 app.get("/urls/new", (req, res) => {
   const id = req.cookies["user_id"];
+
+  if (!id) {
+    return res.redirect("/login");
+  }
+
   const user = users[id];
   const templateVars = { user };
   res.render("urls_new", templateVars);
@@ -184,12 +190,12 @@ app.get("/urls/new", (req, res) => {
 
 /** URLs DETAILS */
 
-// READ info for one of the shortURLs
+// READ: info for one of the shortURLs
 app.get("/urls/:shortURL", (req, res) => {
   const id = req.cookies["user_id"];
   const user = users[id];
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   const templateVars = {
     user,
     shortURL,
@@ -200,7 +206,8 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // READ: Redirects using the shortURL to the longURL webpage
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[shortURL].longURL;
   // To prevent attempting multiple redirects, set staus code to 404 Not found when the shortURL doesn't exist in urlDatabase
   if (!longURL) {
     res.statusCode = 404;  //res.status(404).send("URL is not defined, page not found") and a return?
@@ -209,14 +216,14 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
-// UPDATE feature: POST a new long URL to the database
+// UPDATE/EDIT feature - POST: a new long URL to the database
 app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL].longURL = req.body.longURL;
   res.redirect(`/urls`);
 });
 
-// DELETE feature: Deletes a URL from the database via Delete button
+// DELETE feature - DELETE: a URL from the database via Delete button
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect(`/urls`);
