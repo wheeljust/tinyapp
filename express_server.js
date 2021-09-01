@@ -80,7 +80,7 @@ app.get("/register", (req, res) => {
 // POST: for a new user sign up
 app.post("/register", (req, res) => {
   const email = req.body.email;
-  const password = req.body.password;
+  const password = bcrypt.hashSync(req.body.password, 10);
   const error = { msg: null };
   const id = generateRandomString();
   
@@ -145,10 +145,10 @@ app.post("/login", (req, res) => {
     return res.render("register", { user, error });
   }
 
-  // user found but passwords don't match
-  if (user.password !== password) {
+  // Checked if the stored hash of password matches what was entered using bcrypt
+  if (!bcrypt.compareSync(password, user.password)) {
+    user = null; // assign null to prvent the header from populating if the password is incorrect
     error.msg = 'The password you entered is invalid, please try again.';
-    user = null;
     res.statusCode = 403;
     return res.render("login", { user, error });
   }
