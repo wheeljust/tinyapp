@@ -3,16 +3,15 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
+// Middleware requirements 
 const bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({extended: true}));
-// Note - body parser deprecated, could just use this line:
-// app.use(urlencoded({extended: false});
-
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
+
+// Note - body parser deprecated, could just use this line: app.use(urlencoded({extended: false});
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-
 app.use(express.static("public"));
-
 app.set("view engine", "ejs");
 
 // Database variables
