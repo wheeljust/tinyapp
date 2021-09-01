@@ -253,14 +253,27 @@ app.get("/u/:shortURL", (req, res) => {
 
 // UPDATE/EDIT feature - POST: a new long URL to the database
 app.post("/urls/:id", (req, res) => {
+  const id = req.cookies["user_id"];
   const shortURL = req.params.id;
+
+  if (urlDatabase[shortURL].id !== id) {
+    return res.status(401).send("Unauthorized Permissions - Request not complete");
+  }
+
   urlDatabase[shortURL].longURL = req.body.longURL;
   res.redirect(`/urls`);
 });
 
 // DELETE feature - DELETE: a URL from the database via Delete button
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  const id = req.cookies["user_id"];
+  const shortURL = req.params.shortURL;
+  
+  if (urlDatabase[shortURL].id !== id) {
+    return res.status(401).send("Unauthorized Permissions - Request not complete");
+  }
+
+  delete urlDatabase[shortURL];
   res.redirect(`/urls`);
 });
 
