@@ -50,6 +50,20 @@ const getUserByEmail = (subEmail) => {
   return null;
 };
 
+/**
+ * returns a restricted object of URLs from the database that only the logged in user can access
+ * @param {id of the user who is logged in} id 
+ */
+const urlsForUser = (id) => {
+  const accessList = {};
+  for (const url in urlDatabase) {
+    if (urlDatabase[url].id === id) {
+      accessList.url = urlDatabase[url];
+    }
+  }
+  return accessList;
+};
+
 /** REGISTER & LOGIN/OUT Handlers */
 
 // READ: register page
@@ -157,18 +171,30 @@ app.post("/logout", (req, res) => {
 app.get("/urls", (req, res) => {
   const id = req.cookies["user_id"];
   const user = users[id];
+  const error = { msg: null };
   const templateVars = {
     user,
-    urls: urlDatabase
+    urls: urlsForUser(id),
+    error
   };
+
+  if (!id) {
+    error.msg = "Please log in to view this page"
+    return res.render("urls_index", templateVars);
+  }
+
   res.render("urls_index", templateVars);
 });
 
 // POST: new shortURL to urlDatabase, redirect to urls_show view with the new shortURL
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
-  urlDatabase[shortURL].longURL = req.body.longURL;
-  urlDatabase[shortURL].id = req.cookies["user_id"]
+  const longURL = req.body.longURL;
+  const id = req.cookies["user_id"];
+  urlDatabase[shortURL] = {
+    longURL,
+    id
+  };
   res.redirect(`/urls/${shortURL}`);
 });
 
