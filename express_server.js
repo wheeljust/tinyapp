@@ -5,6 +5,8 @@ const PORT = 8080; // default port 8080
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
+// Note - body parser deprecated, could just use this line:
+// app.use(urlencoded({extended: false});
 
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
@@ -32,20 +34,20 @@ const generateRandomString = () => {
 };
 
 /**
- * findUser function
+ * getUserByEmail function
  * @param {a users email address from the entry form} subEmail
- * @returns the users credentials as an object if their email is found in the database
+ * @returns the user credentials as an object if their email is found in the database
  */
-const findUser = (subEmail) => {
-  if (users.length === 0) return undefined;
+const getUserByEmail = (subEmail) => {
+  if (users.length === 0) return null;
 
-  for (const user in users) {
-    if (subEmail === users[user].email) {
-      return users[user];
+  for (const id in users) {
+    if (subEmail === users[id].email) {
+      return users[id];
     }
   }
-  // No match in the database, return undefined credentials meaning no existing user
-  return undefined;
+  // No match in the database, return null meaning credentials do not exist
+  return null;
 };
 
 /** REGISTER & LOGIN/OUT Handlers */
@@ -70,25 +72,23 @@ app.post("/register", (req, res) => {
   if (!email || !password) {
     res.statusCode = 400;
     error.msg = 'Please enter a valid email and password';
-    res.render("register", { error });
-    return;
+    return res.render("register", { error });
   }
   
   // Check for the user in the database
-  if (findUser(email)) {
+  if (getUserByEmail(email)) {
     res.statusCode = 400;
     error.msg = 'This account already exists, please login using your existing email and password';
-    res.render("login", { error });
-    return;
+    return res.render("login", { error });
   }
 
-  const userID = generateRandomString();
-  users[userID] = {
-    id: userID,
+  const id = generateRandomString();
+  users[id] = {
+    id,
     email,
     password
   };
-  res.cookie("user_id", userID);
+  res.cookie("user_id", id);
   res.redirect("/urls");
 });
 
@@ -104,7 +104,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const credentials = findUser(email);
+  const user = getUserByEmail(email);
   const error = {
     msg: null,
   };
@@ -113,27 +113,24 @@ app.post("/login", (req, res) => {
   if (!email || !password) {
     res.statusCode = 400;
     error.msg = 'Please enter a valid email and password';
-    res.render("login", { error });
-    return;
+    return res.render("login", { error });
   }
   
-  // No credentials found - would be undefined
-  if (!credentials) {
+  // No user found - user would be null
+  if (!user) {
     res.statusCode = 403;
     error.msg = 'Email not found, please create a new account';
-    res.render("register", { error });
-    return;
+    return res.render("register", { error });
   }
 
-  // Credentials found but passwords don't match
-  if (credentials.password !== password) {
+  // user found but passwords don't match
+  if (user.password !== password) {
     error.msg = 'The password you entered is invalid, please try again.';
     res.statusCode = 403;
-    res.render("login", { error });
-    return;
+    return res.render("login", { error });
   }
 
-  res.cookie("user_id", credentials.id);
+  res.cookie("user_id", user.id);
   res.redirect("/urls");
 });
 
@@ -148,8 +145,8 @@ app.post("/logout", (req, res) => {
 
 // READ: go to page with URL database table
 app.get("/urls", (req, res) => {
-  const userID = req.cookies["user_id"];
-  const user = users[userID];
+  const id = req.cookies["user_id"];
+  const user = users[id];
   const templateVars = {
     user,
     urls: urlDatabase
@@ -169,8 +166,8 @@ app.post("/urls", (req, res) => {
 
 // READ page where user can create a new shortURL
 app.get("/urls/new", (req, res) => {
-  const userID = req.cookies["user_id"];
-  const user = users[userID];
+  const id = req.cookies["user_id"];
+  const user = users[id];
   const templateVars = { user };
   res.render("urls_new", templateVars);
 });
@@ -180,12 +177,14 @@ app.get("/urls/new", (req, res) => {
 
 // READ info for one of the shortURLs
 app.get("/urls/:shortURL", (req, res) => {
-  const userID = req.cookies["user_id"];
-  const user = users[userID];
+  const id = req.cookies["user_id"];
+  const user = users[id];
+  const shortURL = req.params.shortURL;
+  const longURL = urlDatabase[req.params.shortURL];
   const templateVars = {
     user,
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]
+    shortURL,
+    longURL
   };
   res.render("urls_show", templateVars);
 });
@@ -195,7 +194,7 @@ app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   // To prevent attempting multiple redirects, set staus code to 404 Not found when the shortURL doesn't exist in urlDatabase
   if (!longURL) {
-    res.statusCode = 404;
+    res.statusCode = 404;  //res.status(404).send("URL is not defined, page not found") and a return?
     res.end();
   }
   res.redirect(longURL);
