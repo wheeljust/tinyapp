@@ -5,12 +5,15 @@ const PORT = 8080; // default port 8080
 
 // Middleware requirements 
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 
 // Note - body parser deprecated, could just use this line: app.use(urlencoded({extended: false});
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
@@ -67,7 +70,7 @@ const urlsForUser = (id) => {
 
 // READ: register page
 app.get("/register", (req, res) => {
-  const id = req.cookies["user_id"];
+  const id = req.session.user_id;
   const user = users[id];
   const error = { msg: null };
   const templateVars = {
@@ -106,13 +109,13 @@ app.post("/register", (req, res) => {
     email,
     password
   };
-  res.cookie("user_id", id);
+  req.session.user_id = id;
   res.redirect("/urls");
 });
 
 // READ: login page
 app.get("/login", (req, res) => {
-  const id = req.cookies["user_id"];
+  const id = req.session.user_id;
   const user = users[id];
   const error = { msg: null };
   const templateVars = {
@@ -153,13 +156,13 @@ app.post("/login", (req, res) => {
     return res.render("login", { user, error });
   }
 
-  res.cookie("user_id", user.id);
+  req.session.user_id = user.id;
   res.redirect("/urls");
 });
 
 // POST: to logout
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect("/login");
 });
 
@@ -168,7 +171,7 @@ app.post("/logout", (req, res) => {
 
 // READ: go to page with URL database table
 app.get("/urls", (req, res) => {
-  const id = req.cookies["user_id"];
+  const id = req.session.user_id;
   const user = users[id];
   const error = { msg: null };
   const templateVars = {
@@ -189,7 +192,7 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
-  const id = req.cookies["user_id"];
+  const id = req.session.user_id;
   urlDatabase[shortURL] = {
     longURL,
     id
@@ -202,7 +205,7 @@ app.post("/urls", (req, res) => {
 
 // READ: page where user can create a new shortURL
 app.get("/urls/new", (req, res) => {
-  const id = req.cookies["user_id"];
+  const id = req.session.user_id;
 
   if (!id) {
     return res.redirect("/login");
@@ -218,7 +221,7 @@ app.get("/urls/new", (req, res) => {
 
 // READ: info for one of the shortURLs
 app.get("/urls/:shortURL", (req, res) => {
-  const id = req.cookies["user_id"];
+  const id = req.session.user_id;
   const user = users[id];
   const error = { msg: null };
   const shortURL = req.params.shortURL;
@@ -252,7 +255,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 // UPDATE/EDIT feature - POST: a new long URL to the database
 app.post("/urls/:id", (req, res) => {
-  const id = req.cookies["user_id"];
+  const id = req.session.user_id;
   const shortURL = req.params.id;
 
   if (urlDatabase[shortURL].id !== id) {
@@ -265,7 +268,7 @@ app.post("/urls/:id", (req, res) => {
 
 // DELETE feature - DELETE: a URL from the database via Delete button
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const id = req.cookies["user_id"];
+  const id = req.session.user_id;
   const shortURL = req.params.shortURL;
   
   if (urlDatabase[shortURL].id !== id) {
