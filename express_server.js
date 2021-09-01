@@ -54,35 +54,40 @@ const getUserByEmail = (subEmail) => {
 
 // READ register page
 app.get("/register", (req, res) => {
-  const error = {
-    msg: null,
-  };
-  res.render("register", { error });
+  const id = req.cookies["user_id"];
+  const user = users[id];
+  const error = { msg: null };
+  const templateVars = {
+    user,
+    error
+  }
+  res.render("register", templateVars);
 });
 
 // POST for a new user sign up
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const error = {
-    msg: null,
-  };
+  const error = { msg: null };
+  const id = generateRandomString();
+  
+  // initate the user as null for error handling, if all filters pass then the user will be put in database
+  const user = null;  
   
   // Check if no entry in the fields provided
   if (!email || !password) {
     res.statusCode = 400;
     error.msg = 'Please enter a valid email and password';
-    return res.render("register", { error });
+    return res.render("register", { user, error });
   }
   
   // Check for the user in the database
   if (getUserByEmail(email)) {
     res.statusCode = 400;
     error.msg = 'This account already exists, please login using your existing email and password';
-    return res.render("login", { error });
+    return res.render("login", { user, error });
   }
 
-  const id = generateRandomString();
   users[id] = {
     id,
     email,
@@ -94,10 +99,14 @@ app.post("/register", (req, res) => {
 
 // Read login page
 app.get("/login", (req, res) => {
-  const error = {
-    msg: null,
-  };
-  res.render("login", { error });
+  const id = req.cookies["user_id"];
+  const user = users[id];
+  const error = { msg: null };
+  const templateVars = {
+    user,
+    error
+  }
+  res.render("login", templateVars);
 });
 
 // POST for login feature
@@ -113,21 +122,21 @@ app.post("/login", (req, res) => {
   if (!email || !password) {
     res.statusCode = 400;
     error.msg = 'Please enter a valid email and password';
-    return res.render("login", { error });
+    return res.render("login", { user, error });
   }
   
   // No user found - user would be null
   if (!user) {
     res.statusCode = 403;
     error.msg = 'Email not found, please create a new account';
-    return res.render("register", { error });
+    return res.render("register", { user, error });
   }
 
   // user found but passwords don't match
   if (user.password !== password) {
     error.msg = 'The password you entered is invalid, please try again.';
     res.statusCode = 403;
-    return res.render("login", { error });
+    return res.render("login", { user, error });
   }
 
   res.cookie("user_id", user.id);
