@@ -5,15 +5,17 @@ const PORT = 8080; // default port 8080
 
 // Middleware requirements 
 const bodyParser = require('body-parser');
-const cookieSession = require('cookie-session');
-const bcrypt = require('bcrypt');
-
-// Note - body parser deprecated, could just use this line: app.use(urlencoded({extended: false});
 app.use(bodyParser.urlencoded({extended: true}));
+
+const cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
 }));
+
+const bcrypt = require('bcrypt');
+const getUserByEmail = require('./helpers');
+
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
@@ -33,24 +35,6 @@ const users = {
  */
 const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
-};
-
-/**
- * getUserByEmail function
- * @param {a users email address from the entry form} email
- * @param {the database to iterrate on} databse
- * @returns the user credentials as an object if their email is found in the database
- */
-const getUserByEmail = (email, database) => {
-  if (database.length === 0) return null;
-
-  for (const userID in database) {
-    if (email === database[userID].email) {
-      return database[userID];
-    }
-  }
-  // No match in the database, return null meaning credentials do not exist
-  return null;
 };
 
 /**
