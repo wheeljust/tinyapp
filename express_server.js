@@ -16,6 +16,7 @@ app.use(cookieSession({
 const bcrypt = require('bcrypt');
 const { getUserByEmail } = require('./helpers');
 
+// static is used to render the image on the register and login pages
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
@@ -28,6 +29,8 @@ const urlDatabase = {
 const users = {
 
 };
+
+// Helper functions
 
 /**
  * generateRandomString
@@ -50,6 +53,7 @@ const urlsForUser = (id) => {
   }
   return accessList;
 };
+
 
 /** REGISTER & LOGIN/OUT Handlers */
 
@@ -119,7 +123,7 @@ app.post("/login", (req, res) => {
     msg: null,
   };
 
-  // Check if no entry in the fields provided
+  // Check if no entry in the forms provided
   if (!email || !password) {
     res.statusCode = 400;
     error.msg = 'Please enter a valid email and password';
@@ -215,7 +219,7 @@ app.get("/urls/:shortURL", (req, res) => {
     return res.status(404).send("URL is not defined, page not found");
   }
 
-  // First filter passes so shortURL exists in database, now we can find the longURL
+  // If the first filter passes then shortURL exists in database, this ensures we can find the longURL
   const longURL = urlDatabase[shortURL].longURL;
   const templateVars = {
     user,
@@ -224,7 +228,7 @@ app.get("/urls/:shortURL", (req, res) => {
     error
   };
 
-  // Permissions check that session userID matches the URL creator, otherwise no permissions allowed
+  // Permissions check that the session userID matches the URL creator, otherwise no permissions allowed
   if (urlDatabase[shortURL].id !== id) {
     error.msg = "Your user permissions do not allow you to access this page";
     return res.render("urls_show", templateVars);
@@ -245,7 +249,7 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
-// UPDATE feature - POST: a new long URL to the database
+// UPDATE feature - POST: a new longURL to the database for an existing shortURL
 app.post("/urls/:id", (req, res) => {
   const id = req.session.userID;
   const shortURL = req.params.id;
@@ -258,7 +262,7 @@ app.post("/urls/:id", (req, res) => {
   res.redirect(`/urls`);
 });
 
-// DELETE feature - DELETE: a URL from the database via Delete button
+// DELETE feature - DELETE: a URL from the database
 app.post("/urls/:shortURL/delete", (req, res) => {
   const id = req.session.userID;
   const shortURL = req.params.shortURL;
