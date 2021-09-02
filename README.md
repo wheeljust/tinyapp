@@ -29,7 +29,7 @@ _____
 - Install all dependencies (using the `npm install` command).
 
 - Run the development web server using the `npm start` command.
-  - The default PORT is set to run on the users machine (localhost) on PORT: 8080
+  - The default PORT is set to run on the users machine (*localhost*) on __PORT: 8080__
 
 - Once the server is running, test the application in your browser by visiting [localhost:8080/login](http://localhost:8080/login)
 
