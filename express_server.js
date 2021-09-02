@@ -37,15 +37,16 @@ const generateRandomString = () => {
 
 /**
  * getUserByEmail function
- * @param {a users email address from the entry form} subEmail
+ * @param {a users email address from the entry form} email
+ * @param {the database to iterrate on} databse
  * @returns the user credentials as an object if their email is found in the database
  */
-const getUserByEmail = (subEmail) => {
-  if (users.length === 0) return null;
+const getUserByEmail = (email, database) => {
+  if (database.length === 0) return null;
 
-  for (const id in users) {
-    if (subEmail === users[id].email) {
-      return users[id];
+  for (const userID in database) {
+    if (email === database[userID].email) {
+      return database[userID];
     }
   }
   // No match in the database, return null meaning credentials do not exist
@@ -98,7 +99,7 @@ app.post("/register", (req, res) => {
   }
   
   // Check for the user in the database
-  if (getUserByEmail(email)) {
+  if (getUserByEmail(email, users)) {
     res.statusCode = 400;
     error.msg = 'This account already exists, please login using your existing email and password';
     return res.render("login", { user, error });
@@ -129,7 +130,7 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  let user = getUserByEmail(email);
+  let user = getUserByEmail(email, users);
   const error = {
     msg: null,
   };
