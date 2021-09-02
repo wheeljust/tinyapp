@@ -19,6 +19,7 @@
           <h5 class="card-title">TinyURL for: <%= url.longURL %></h5>
           <p class="card-text">Short URL: <a class="text-success" href="/u/<%= url.shortURL %>"><%= url.shortURL %></a></p>
           <p class="card-text">Total Visits: <%= url.totalVisits %></p>
+          <p class="card-text">Unique Visits: <%= url.uniqueVisits %></p>
         </div>
       <div class="card-footer text-muted">
           <h4 class="card-title">Edit</h4>
@@ -27,6 +28,34 @@
             <input class="form-control" type="text" name="longURL" placeholder="http://" style="width: 300px; margin: 1em">
             <button type="submit" class="btn btn-success">Update</button>
           </form>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <div class="text-left">
+            <h4 class="mt-3 mb-3 card-title">View History:</h4>
+          </div>
+          <div>
+            <table class='table'>
+              <thread>
+                <tr>
+                  <th scope="col">Visitor ID</th>
+                  <th scope="col">Time Stamp</th>
+                </tr>
+              </thread>
+              <tbody>
+                <% const reverseViews = url.visitHistory.reverse() %>
+                <% for(const visit of reverseViews ) { %>
+                    <tr>
+                        <td><%= visit.visitorID %></td>
+                        <td><%= visit.timestamp %></td>
+                    </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
     <% } %>
