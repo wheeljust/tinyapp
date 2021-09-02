@@ -1,9 +1,9 @@
-// Set up packages and modules
+// Set up express
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 
-// Middleware requirements 
+// Middleware requirements
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -21,8 +21,8 @@ app.set("view engine", "ejs");
 
 // Database variables
 const urlDatabase = {
-  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", id: "aJ481W" },
-  "9sm5xK": {longURL: "http://www.google.com", id: "aJ481W" }
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", id: "userRandomID" },
+  "9sm5xK": {longURL: "http://www.google.com", id: "user2RandomID" }
 };
 
 const users = {
@@ -39,7 +39,7 @@ const generateRandomString = () => {
 
 /**
  * returns a restricted object of URLs from the database that only the logged in user can access
- * @param {id of the user who is logged in} id 
+ * @param {id of the user who is logged in} id
  */
 const urlsForUser = (id) => {
   const accessList = {};
@@ -53,27 +53,27 @@ const urlsForUser = (id) => {
 
 /** REGISTER & LOGIN/OUT Handlers */
 
-// READ: register page
+// READ: GET register page
 app.get("/register", (req, res) => {
-  const id = req.session.user_id;
+  const id = req.session.userID;
   const user = users[id];
   const error = { msg: null };
   const templateVars = {
     user,
     error
-  }
+  };
   res.render("register", templateVars);
 });
 
-// POST: for a new user sign up
+// POST: for a new user to register
 app.post("/register", (req, res) => {
+  const id = generateRandomString();
   const email = req.body.email;
   const password = bcrypt.hashSync(req.body.password, 10);
   const error = { msg: null };
-  const id = generateRandomString();
   
-  // initate the user as null for error handling, if all filters pass then the user will be put in database
-  const user = null;  
+  // initate the user as null for error handling, if all filters pass then user will added to database at the end
+  const user = null;
   
   // Check if no entry in the fields provided
   if (!email || !password) {
@@ -82,7 +82,7 @@ app.post("/register", (req, res) => {
     return res.render("register", { user, error });
   }
   
-  // Check for the user in the database
+  // Check for the user already in the database
   if (getUserByEmail(email, users)) {
     res.statusCode = 400;
     error.msg = 'This account already exists, please login using your existing email and password';
@@ -94,19 +94,19 @@ app.post("/register", (req, res) => {
     email,
     password
   };
-  req.session.user_id = id;
+  req.session.userID = id;
   res.redirect("/urls");
 });
 
-// READ: login page
+// READ: GET login page
 app.get("/login", (req, res) => {
-  const id = req.session.user_id;
+  const id = req.session.userID;
   const user = users[id];
   const error = { msg: null };
   const templateVars = {
     user,
     error
-  }
+  };
   res.render("login", templateVars);
 });
 
@@ -126,14 +126,14 @@ app.post("/login", (req, res) => {
     return res.render("login", { user, error });
   }
   
-  // No user found - user would be null
+  // If no user found, then no account exists and the user needs to register
   if (!user) {
     res.statusCode = 403;
     error.msg = 'Email not found, please create a new account';
     return res.render("register", { user, error });
   }
 
-  // Checked if the stored hash of password matches what was entered using bcrypt
+  // Check if the stored hash of password does not match what was entered in the login form
   if (!bcrypt.compareSync(password, user.password)) {
     user = null; // assign null to prvent the header from populating if the password is incorrect
     error.msg = 'The password you entered is invalid, please try again.';
@@ -141,7 +141,7 @@ app.post("/login", (req, res) => {
     return res.render("login", { user, error });
   }
 
-  req.session.user_id = user.id;
+  req.session.userID = user.id;
   res.redirect("/urls");
 });
 
@@ -156,7 +156,7 @@ app.post("/logout", (req, res) => {
 
 // READ: go to page with URL database table
 app.get("/urls", (req, res) => {
-  const id = req.session.user_id;
+  const id = req.session.userID;
   const user = users[id];
   const error = { msg: null };
   const templateVars = {
@@ -166,7 +166,7 @@ app.get("/urls", (req, res) => {
   };
 
   if (!id) {
-    error.msg = "Please register or login to view this page"
+    error.msg = "Please register or login to view this page";
     return res.render("urls_index", templateVars);
   }
 
@@ -175,9 +175,9 @@ app.get("/urls", (req, res) => {
 
 // POST: new shortURL to urlDatabase, redirect to urls_show view with the new shortURL
 app.post("/urls", (req, res) => {
+  const id = req.session.userID;
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
-  const id = req.session.user_id;
   urlDatabase[shortURL] = {
     longURL,
     id
@@ -190,7 +190,7 @@ app.post("/urls", (req, res) => {
 
 // READ: page where user can create a new shortURL
 app.get("/urls/new", (req, res) => {
-  const id = req.session.user_id;
+  const id = req.session.userID;
 
   if (!id) {
     return res.redirect("/login");
@@ -206,10 +206,16 @@ app.get("/urls/new", (req, res) => {
 
 // READ: info for one of the shortURLs
 app.get("/urls/:shortURL", (req, res) => {
-  const id = req.session.user_id;
+  const id = req.session.userID;
   const user = users[id];
   const error = { msg: null };
   const shortURL = req.params.shortURL;
+  
+  if (!urlDatabase[shortURL]) {
+    return res.status(404).send("URL is not defined, page not found");
+  }
+
+  // First filter passes so shortURL exists in database, now we can find the longURL
   const longURL = urlDatabase[shortURL].longURL;
   const templateVars = {
     user,
@@ -218,8 +224,9 @@ app.get("/urls/:shortURL", (req, res) => {
     error
   };
 
+  // Permissions check that session userID matches the URL creator, otherwise no permissions allowed
   if (urlDatabase[shortURL].id !== id) {
-    error.msg = "Your user permissions do not allow you to access this page"
+    error.msg = "Your user permissions do not allow you to access this page";
     return res.render("urls_show", templateVars);
   }
 
@@ -229,18 +236,18 @@ app.get("/urls/:shortURL", (req, res) => {
 // READ: Redirects using the shortURL to the longURL webpage
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL].longURL;
-  // To prevent attempting multiple redirects, set staus code to 404 Not found when the shortURL doesn't exist in urlDatabase
-  if (!longURL) {
-    res.statusCode = 404;  //res.status(404).send("URL is not defined, page not found") and a return?
-    res.end();
+ 
+  if (!urlDatabase[shortURL]) {
+    return res.status(404).send("URL is not defined, page not found");
   }
+
+  const longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
 });
 
-// UPDATE/EDIT feature - POST: a new long URL to the database
+// UPDATE feature - POST: a new long URL to the database
 app.post("/urls/:id", (req, res) => {
-  const id = req.session.user_id;
+  const id = req.session.userID;
   const shortURL = req.params.id;
 
   if (urlDatabase[shortURL].id !== id) {
@@ -253,7 +260,7 @@ app.post("/urls/:id", (req, res) => {
 
 // DELETE feature - DELETE: a URL from the database via Delete button
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const id = req.session.user_id;
+  const id = req.session.userID;
   const shortURL = req.params.shortURL;
   
   if (urlDatabase[shortURL].id !== id) {
