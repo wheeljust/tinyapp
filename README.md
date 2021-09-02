@@ -9,10 +9,10 @@ _____
 
 ## Final Product:
 
-!["TinyApp Login Page"](./public/login_page.png)
-!["Example of URL's page for a user who is logged in"](./public/myurls_page.png)
-!["Edit & URL details page"](./public/urlshow_page.png)
-!["Create new URL page"](./public/create_new_page.png)
+!["TinyApp Login Page"](https://github.com/wheeljust/tinyapp/blob/master/public/login_page.png?raw=true)
+!["Example of URL's page for a user who is logged in"](https://github.com/wheeljust/tinyapp/blob/master/public/myurls_page.png?raw=true)
+!["Edit & URL details page"](https://github.com/wheeljust/tinyapp/blob/master/public/urlshow_page.png?raw=true)
+!["Create new URL page"](https://github.com/wheeljust/tinyapp/blob/master/public/create_new_page.png?raw=true)
 
 
 ## Dependencies:
