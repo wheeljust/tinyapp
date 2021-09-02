@@ -14,7 +14,7 @@ app.use(cookieSession({
 }));
 
 const bcrypt = require('bcrypt');
-const getUserByEmail = require('./helpers');
+const { getUserByEmail } = require('./helpers');
 
 app.use(express.static("public"));
 app.set("view engine", "ejs");
