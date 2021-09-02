@@ -22,8 +22,22 @@ app.set("view engine", "ejs");
 
 // Database variables
 const urlDatabase = {
-  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", id: "userRandomID" },
-  "9sm5xK": {longURL: "http://www.google.com", id: "user2RandomID" }
+  "b2xVn2": {
+    shortURL: "b2xVn2",
+    longURL: "http://www.lighthouselabs.ca",
+    id: "userRandomID",
+    totalVisits: 0,
+    uniqueVisits: 0,
+    visitorIDs: []
+  },
+  "9sm5xK": {
+    shortURL: "9sm5xK",
+    longURL: "http://www.google.com",
+    id: "user2RandomID",
+    totalVisits: 0,
+    uniqueVisits: 0,
+    visitorIDs: []
+  }
 };
 
 const users = {
@@ -52,6 +66,11 @@ const urlsForUser = (id) => {
     }
   }
   return accessList;
+};
+
+const getURLbyShortLink = (shortURL) => {
+  if (urlDatabase[shortURL]) return urlDatabase[shortURL];
+  return undefined;
 };
 
 
@@ -190,8 +209,12 @@ app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
   urlDatabase[shortURL] = {
+    shortURL,
     longURL,
-    id
+    id,
+    totalVisits: 0,
+    uniqueVisits: 0,
+    visitorIDs: []
   };
   res.redirect(`/urls/${shortURL}`);
 });
@@ -220,23 +243,21 @@ app.get("/urls/:shortURL", (req, res) => {
   const id = req.session.userID;
   const user = users[id];
   const error = { msg: null };
-  const shortURL = req.params.shortURL;
+  const url = getURLbyShortLink(req.params.shortURL);
   
-  if (!urlDatabase[shortURL]) {
+  if (!url) {
     return res.status(404).send("URL is not defined, page not found");
   }
 
-  // If the first filter passes then shortURL exists in database, this ensures we can find the longURL
-  const longURL = urlDatabase[shortURL].longURL;
+  // If the first filter passes then shortURL exists in database, then pass full url details to tamplateVars
   const templateVars = {
     user,
-    shortURL,
-    longURL,
+    url,
     error
   };
 
   // Permissions check that the session userID matches the URL creator, otherwise no permissions allowed
-  if (urlDatabase[shortURL].id !== id) {
+  if (url.id !== id) {
     error.msg = "Your user permissions do not allow you to access this page";
     return res.render("urls_show", templateVars);
   }
@@ -246,39 +267,39 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // READ: Redirects using the shortURL to the longURL webpage
 app.get("/u/:shortURL", (req, res) => {
-  const shortURL = req.params.shortURL;
+  const url = getURLbyShortLink(req.params.shortURL);
  
-  if (!urlDatabase[shortURL]) {
+  if (!url) {
     return res.status(404).send("URL is not defined, page not found");
   }
 
-  const longURL = urlDatabase[shortURL].longURL;
-  res.redirect(longURL);
+  urlDatabase[url.shortURL].totalVisits += 1;
+  res.redirect(url.longURL);
 });
 
 // UPDATE feature - POST: a new longURL to the database for an existing shortURL
 app.post("/urls/:id", (req, res) => {
   const id = req.session.userID;
-  const shortURL = req.params.id;
+  const url = getURLbyShortLink(req.params.id);
 
-  if (urlDatabase[shortURL].id !== id) {
+  if (url.id !== id) {
     return res.status(401).send("Unauthorized Permissions - Request not complete");
   }
 
-  urlDatabase[shortURL].longURL = req.body.longURL;
+  urlDatabase[url.shortURL].longURL = req.body.longURL;
   res.redirect(`/urls`);
 });
 
 // DELETE feature - DELETE: a URL from the database
 app.post("/urls/:shortURL/delete", (req, res) => {
   const id = req.session.userID;
-  const shortURL = req.params.shortURL;
+  const url = getURLbyShortLink(req.params.shortURL);
   
-  if (urlDatabase[shortURL].id !== id) {
+  if (url.id !== id) {
     return res.status(401).send("Unauthorized Permissions - Request not complete");
   }
 
-  delete urlDatabase[shortURL];
+  delete urlDatabase[url.shortURL];
   res.redirect(`/urls`);
 });
 
