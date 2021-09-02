@@ -57,6 +57,13 @@ const urlsForUser = (id) => {
 
 /** REGISTER & LOGIN/OUT Handlers */
 
+// READ: always redirect home page to login if no cookie set, otherwise redirect to MyURLs page if logged in
+app.get("/", (req, res) => {
+  const id = req.session.userID;
+  if (id) return res.redirect("/urls");
+  res.redirect("/login");
+});
+
 // READ: GET register page
 app.get("/register", (req, res) => {
   const id = req.session.userID;
