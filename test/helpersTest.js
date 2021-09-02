@@ -32,19 +32,25 @@ describe('getUserByEmail tests', () => {
     assert.deepEqual(expected, user);
   });
 
-  it('should return null if user email is not in the database', () => {
+  it('should return undefined if user email is not in the database', () => {
     const user = getUserByEmail("user34@example.com", testUsers);
-    const expected = null;
+    const expected = undefined;
 
     assert.strictEqual(expected, user);
   });
 
-  it('should return null if user email is an empty string', () => {
+  it('should return undefined if user email is an empty string', () => {
     const user = getUserByEmail("", testUsers);
-    const expected = null;
+    const expected = undefined;
 
     assert.strictEqual(expected, user);
   });
 
+  it('should return undefined if the user database is empty, i.e. no new users created yet', () => {
+    const user = getUserByEmail("user2@example.com", {});
+    const expected = undefined;
+
+    assert.strictEqual(expected, user);
+  });
 
 });

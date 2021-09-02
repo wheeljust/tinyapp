@@ -6,7 +6,7 @@
  */
 
  const getUserByEmail = (email, database) => {
-  if (database.length === 0) return null;
+  if (database.length === 0) return undefined;
 
   for (const userID in database) {
     if (email === database[userID].email) {
@@ -14,8 +14,8 @@
     }
   }
 
-  // No match in the database, return null meaning credentials do not exist
-  return null;
+  // No match in the database, return undefined meaning credentials do not exist
+  return undefined;
 };
 
 module.exports = { getUserByEmail };
