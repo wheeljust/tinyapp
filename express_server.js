@@ -74,6 +74,10 @@ const getURLbyShortLink = (shortURL) => {
   return undefined;
 };
 
+const getTimestamp = () => {
+  const currentTime = new Date(Date.now()).toLocaleString();
+  return `${currentTime} UTC`;
+};
 
 /** REGISTER & LOGIN/OUT Handlers */
 
@@ -284,7 +288,7 @@ app.get("/u/:shortURL", (req, res) => {
   // Record the timestamp and visitorID in the visitsHistory of this url
   urlDatabase[url.shortURL].visitHistory.push({
     visitorID: req.session.visitorID,
-    timestamp: Date.now()
+    timestamp: getTimestamp()
   });
   
   res.redirect(url.longURL);
