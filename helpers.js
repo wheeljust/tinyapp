@@ -13,9 +13,9 @@
       return database[userID];
     }
   }
-  
+
   // No match in the database, return null meaning credentials do not exist
   return null;
 };
 
-module.exports = getUserByEmail;
+module.exports = { getUserByEmail };
