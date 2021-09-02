@@ -10,7 +10,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 const cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'session',
-  keys: ['key1', 'key2']
+  keys: ['key1', 'key2'],
+  maxAge: 24 * 60 * 60 * 1000
 }));
 
 const bcrypt = require('bcrypt');
@@ -28,7 +29,7 @@ const urlDatabase = {
     id: "userRandomID",
     totalVisits: 0,
     uniqueVisits: 0,
-    visitorIDs: []
+    visitHistory: []
   },
   "9sm5xK": {
     shortURL: "9sm5xK",
@@ -36,7 +37,7 @@ const urlDatabase = {
     id: "user2RandomID",
     totalVisits: 0,
     uniqueVisits: 0,
-    visitorIDs: []
+    visitHistory: []
   }
 };
 
@@ -214,7 +215,7 @@ app.post("/urls", (req, res) => {
     id,
     totalVisits: 0,
     uniqueVisits: 0,
-    visitorIDs: []
+    visitHistory: []
   };
   res.redirect(`/urls/${shortURL}`);
 });
@@ -268,12 +269,25 @@ app.get("/urls/:shortURL", (req, res) => {
 // READ: Redirects using the shortURL to the longURL webpage
 app.get("/u/:shortURL", (req, res) => {
   const url = getURLbyShortLink(req.params.shortURL);
- 
-  if (!url) {
-    return res.status(404).send("URL is not defined, page not found");
+  if (!url) return res.status(404).send("URL is not defined, page not found");
+
+  // Check if this is a new visitor accessing the shortURL - would be no visitor cookie existing if it is a new visitor
+  if (!req.session.visitorID) {
+    const visitorID = generateRandomString();
+    req.session.visitorID = visitorID;
+    urlDatabase[url.shortURL].uniqueVisits += 1;
   }
 
+  // increment total visits every time the path is accessed
   urlDatabase[url.shortURL].totalVisits += 1;
+
+  // Record the timestamp and visitorID in the visitsHistory of this url
+  urlDatabase[url.shortURL].visitHistory.push({
+    visitorID: req.session.visitorID,
+    timestamp: Date.now()
+  });
+  
+  console.log(req.session);
   res.redirect(url.longURL);
 });
 
