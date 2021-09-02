@@ -3,13 +3,13 @@ const { getUserByEmail } = require('../helpers');
 
 const testUsers = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
   "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   },
   "a3eDf5": {
@@ -24,8 +24,8 @@ describe('getUserByEmail tests', () => {
   it('should return a user with a valid email', () => {
     const user = getUserByEmail("user2@example.com", testUsers);
     const expected = {
-      id: "user2RandomID", 
-      email: "user2@example.com", 
+      id: "user2RandomID",
+      email: "user2@example.com",
       password: "dishwasher-funk"
     };
 

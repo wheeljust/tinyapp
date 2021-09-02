@@ -5,7 +5,7 @@
  * @returns the user credentials as an object if their email is found in the database
  */
 
- const getUserByEmail = (email, database) => {
+const getUserByEmail = (email, database) => {
   if (database.length === 0) return undefined;
 
   for (const userID in database) {
