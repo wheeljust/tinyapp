@@ -287,7 +287,6 @@ app.get("/u/:shortURL", (req, res) => {
     timestamp: Date.now()
   });
   
-  console.log(req.session);
   res.redirect(url.longURL);
 });
 
