@@ -124,8 +124,17 @@ describe('generateRandomString test', () => {
 
   it("should return a random string with length of 6", () => {
     const rdmStringLength = generateRandomString().length;
-
     assert.strictEqual(rdmStringLength, 6);
+  });
+
+});
+
+describe('getTimestamp test', () => {
+
+  it("should return the current timestamp in correct format", () => {
+    const currentTime = new Date(Date.now()).toLocaleString();
+    const actual = `${currentTime} UTC`;
+    assert.strictEqual(actual, getTimestamp());
   });
 
 });
