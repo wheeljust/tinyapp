@@ -69,15 +69,25 @@ const urlsForUser = (id) => {
   return accessList;
 };
 
+/**
+ * getURLbyShortLink
+ * @param { the shortURL to lookup in the database} shortURL 
+ * @returns an object containing all of the tracked data for the given shortURL
+ */
 const getURLbyShortLink = (shortURL) => {
   if (urlDatabase[shortURL]) return urlDatabase[shortURL];
   return undefined;
 };
 
+/**
+ * getTimestamp
+ * @returns a string containing the current UTC time in a readable format "mm/dd/yyyy, hr:min:sec AM/PM UTC"
+ */
 const getTimestamp = () => {
   const currentTime = new Date(Date.now()).toLocaleString();
   return `${currentTime} UTC`;
 };
+
 
 /** REGISTER & LOGIN/OUT Handlers */
 
@@ -273,21 +283,32 @@ app.get("/urls/:shortURL", (req, res) => {
 // READ: Redirects using the shortURL to the longURL webpage
 app.get("/u/:shortURL", (req, res) => {
   const url = getURLbyShortLink(req.params.shortURL);
+  const visitorCookie = req.session.activeVisitor;
   if (!url) return res.status(404).send("URL is not defined, page not found");
 
   // Check if this is a new visitor accessing the shortURL - would be no visitor cookie existing if it is a new visitor
-  if (!req.session.visitorID) {
-    const visitorID = generateRandomString();
-    req.session.visitorID = visitorID;
+  if (!visitorCookie) {
+    req.session.activeVisitor = {
+      visitorID: generateRandomString(),
+      shortURLs: [url.shortURL]
+    };
     urlDatabase[url.shortURL].uniqueVisits += 1;
   }
 
+  // Check if the user has not visited this shortURL yet in the current active cookie session
+  if (visitorCookie) {
+    if (visitorCookie.shortURLs.filter(x => x === url.shortURL).length === 0) {
+      req.session.activeVisitor.shortURLs.push(url.shortURL);
+      urlDatabase[url.shortURL].uniqueVisits += 1;
+    }
+  }
+  
   // increment total visits every time the path is accessed
   urlDatabase[url.shortURL].totalVisits += 1;
 
-  // Record the timestamp and visitorID in the visitsHistory of this url
-  urlDatabase[url.shortURL].visitHistory.push({
-    visitorID: req.session.visitorID,
+  // Record the timestamp and visitorID in the visitsHistory of this url, use unshift to add elements in order of most recent visit
+  urlDatabase[url.shortURL].visitHistory.unshift({
+    visitorID: req.session.activeVisitor.visitorID,
     timestamp: getTimestamp()
   });
   
