@@ -30,28 +30,8 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 
 // Database variables
-const urlDatabase = {
-  "b2xVn2": {
-    shortURL: "b2xVn2",
-    longURL: "http://www.lighthouselabs.ca",
-    id: "userRandomID",
-    totalVisits: 0,
-    uniqueVisits: 0,
-    visitHistory: []
-  },
-  "9sm5xK": {
-    shortURL: "9sm5xK",
-    longURL: "http://www.google.com",
-    id: "user2RandomID",
-    totalVisits: 0,
-    uniqueVisits: 0,
-    visitHistory: []
-  }
-};
-
-const users = {
-
-};
+const urlDatabase = {};
+const users = {};
 
 
 /** REGISTER & LOGIN/OUT Handlers */
