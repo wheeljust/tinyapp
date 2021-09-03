@@ -15,7 +15,15 @@ app.use(cookieSession({
 }));
 
 const bcrypt = require('bcrypt');
-const { getUserByEmail } = require('./helpers');
+
+// Required helper functions
+const {
+  getUserByEmail,
+  generateRandomString,
+  urlsForUser,
+  getURLbyShortLink,
+  getTimestamp
+} = require('./helpers');
 
 // static is used to render the image on the register and login pages
 app.use(express.static("public"));
@@ -43,49 +51,6 @@ const urlDatabase = {
 
 const users = {
 
-};
-
-// Helper functions
-
-/**
- * generateRandomString
- * @returns random string 6 characters long
- */
-const generateRandomString = () => {
-  return Math.random().toString(36).substr(2, 6);
-};
-
-/**
- * returns a restricted object of URLs from the database that only the logged in user can access
- * @param {id of the user who is logged in} id
- */
-const urlsForUser = (id) => {
-  const accessList = {};
-  for (const url in urlDatabase) {
-    if (urlDatabase[url].id === id) {
-      accessList[url] = urlDatabase[url];
-    }
-  }
-  return accessList;
-};
-
-/**
- * getURLbyShortLink
- * @param { the shortURL to lookup in the database} shortURL
- * @returns an object containing all of the tracked data for the given shortURL
- */
-const getURLbyShortLink = (shortURL) => {
-  if (urlDatabase[shortURL]) return urlDatabase[shortURL];
-  return undefined;
-};
-
-/**
- * getTimestamp
- * @returns a string containing the current UTC time in a readable format "mm/dd/yyyy, hr:min:sec AM/PM UTC"
- */
-const getTimestamp = () => {
-  const currentTime = new Date(Date.now()).toLocaleString();
-  return `${currentTime} UTC`;
 };
 
 
@@ -206,7 +171,7 @@ app.get("/urls", (req, res) => {
   const error = { msg: null };
   const templateVars = {
     user,
-    urls: urlsForUser(id),
+    urls: urlsForUser(id, urlDatabase),
     error
   };
 
@@ -258,7 +223,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const id = req.session.userID;
   const user = users[id];
   const error = { msg: null };
-  const url = getURLbyShortLink(req.params.shortURL);
+  const url = getURLbyShortLink(req.params.shortURL, urlDatabase);
   
   if (!url) {
     return res.status(404).send("URL is not defined, page not found");
@@ -282,7 +247,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // READ: Redirects using the shortURL to the longURL webpage
 app.get("/u/:shortURL", (req, res) => {
-  const url = getURLbyShortLink(req.params.shortURL);
+  const url = getURLbyShortLink(req.params.shortURL, urlDatabase);
   const visitorCookie = req.session.activeVisitor;
   if (!url) return res.status(404).send("URL is not defined, page not found");
 
@@ -318,7 +283,7 @@ app.get("/u/:shortURL", (req, res) => {
 // UPDATE feature - POST: a new longURL to the database for an existing shortURL
 app.post("/urls/:id", (req, res) => {
   const id = req.session.userID;
-  const url = getURLbyShortLink(req.params.id);
+  const url = getURLbyShortLink(req.params.id, urlDatabase);
 
   if (url.id !== id) {
     return res.status(401).send("Unauthorized Permissions - Request not complete");
@@ -331,7 +296,7 @@ app.post("/urls/:id", (req, res) => {
 // DELETE feature - DELETE: a URL from the database
 app.post("/urls/:shortURL/delete", (req, res) => {
   const id = req.session.userID;
-  const url = getURLbyShortLink(req.params.shortURL);
+  const url = getURLbyShortLink(req.params.shortURL, urlDatabase);
   
   if (url.id !== id) {
     return res.status(401).send("Unauthorized Permissions - Request not complete");
