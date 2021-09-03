@@ -45,8 +45,7 @@
                 </tr>
               </thread>
               <tbody>
-                <% const reverseViews = url.visitHistory.reverse() %>
-                <% for(const visit of reverseViews ) { %>
+                <% for(const visit of url.visitHistory ) { %>
                     <tr>
                         <td><%= visit.visitorID %></td>
                         <td><%= visit.timestamp %></td>
