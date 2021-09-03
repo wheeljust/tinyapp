@@ -71,7 +71,7 @@ const urlsForUser = (id) => {
 
 /**
  * getURLbyShortLink
- * @param { the shortURL to lookup in the database} shortURL 
+ * @param { the shortURL to lookup in the database} shortURL
  * @returns an object containing all of the tracked data for the given shortURL
  */
 const getURLbyShortLink = (shortURL) => {
