@@ -80,6 +80,30 @@ describe('getUserByEmail tests', () => {
 
 });
 
+describe('getURLbyShortLink tests', () => {
+
+  it('should return only a single url object matching the provided short link (url)', () => {
+    const actual = getURLbyShortLink("b2xVn2", testUrlDatabase);
+    const expected = {
+      shortURL: "b2xVn2",
+      longURL: "http://www.lighthouselabs.ca",
+      id: "userRandomID",
+      totalVisits: 0,
+      uniqueVisits: 0,
+      visitHistory: []
+    }
+
+    assert.deepEqual(actual, expected);
+  });
+
+  it('should return undefined if no matching short url exists in the database', () => {
+    const actual = getURLbyShortLink("abc123", testUrlDatabase);
+
+    assert.isUndefined(actual);
+  });
+
+});
+
 describe('urlsForUser tests', () => {
 
   it('should return only the urls for the user id provided', () => {
