@@ -22,7 +22,7 @@ const getUserByEmail = (email, database) => {
  * generateRandomString
  * @returns random string 6 characters long
  */
- const generateRandomString = () => {
+const generateRandomString = () => {
   return Math.random().toString(36).substr(2, 6);
 };
 
@@ -60,7 +60,7 @@ const getTimestamp = () => {
 };
 
 
-module.exports = { 
+module.exports = {
   getUserByEmail,
   generateRandomString,
   urlsForUser,

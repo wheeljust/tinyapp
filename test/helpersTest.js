@@ -91,7 +91,7 @@ describe('getURLbyShortLink tests', () => {
       totalVisits: 0,
       uniqueVisits: 0,
       visitHistory: []
-    }
+    };
 
     assert.deepEqual(actual, expected);
   });
