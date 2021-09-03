@@ -119,3 +119,13 @@ describe('urlsForUser tests', () => {
   });
   
 });
+
+describe('generateRandomString test', () => {
+
+  it("should return a random string with length of 6", () => {
+    const rdmStringLength = generateRandomString().length;
+
+    assert.strictEqual(rdmStringLength, 6);
+  });
+
+});
