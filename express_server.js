@@ -85,7 +85,6 @@ app.post("/register", (req, res) => {
     password: bcrypt.hashSync(password, 10)
   };
   req.session.userID = id;
-  console.log(users);
   res.redirect("/urls");
 });
 
@@ -169,6 +168,11 @@ app.post("/urls", (req, res) => {
   const id = req.session.userID;
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
+
+  if (!id) {
+    return res.status(401).send("Unauthorized Permissions - Please Login to use this feature");
+  }
+  
   urlDatabase[shortURL] = {
     shortURL,
     longURL,
