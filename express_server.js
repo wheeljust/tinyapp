@@ -59,7 +59,7 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
-  const password = bcrypt.hashSync(req.body.password, 10);
+  const password = req.body.password;
   const error = { msg: null };
   
   // initate the user as null for error handling, if all filters pass then user will added to database at the end
@@ -82,9 +82,10 @@ app.post("/register", (req, res) => {
   users[id] = {
     id,
     email,
-    password
+    password: bcrypt.hashSync(password, 10)
   };
   req.session.userID = id;
+  console.log(users);
   res.redirect("/urls");
 });
 
